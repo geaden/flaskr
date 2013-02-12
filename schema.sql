@@ -1,4 +1,4 @@
-DROP TABLE  IF EXISTS entries;
+DROP TABLE IF EXISTS entries;
 CREATE TABLE entries (
   id integer primary key autoincrement,
   title string not null,
