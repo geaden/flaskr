@@ -4,16 +4,15 @@ import sqlite3
 from flask import Flask, request, session, g, redirect, url_for, \
     abort, render_template, flash
 
-# configuration
-DATABASE = '/tmp/flaskr.db'
-DEBUG = True
-SECRET_KEY = 'development key'
-USERNAME = 'admin'
-PASSWORD = 'default'
+from flask.ext.admin import Admin
+
+
+from views import ListView
 
 # create application
 app = Flask(__name__)
-app.config.from_object(__name__)
+admin = Admin(app)
+app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
 
 # connect to database
@@ -38,16 +37,15 @@ def teardown_request(exception):
     g.db.close()
 
 
-@app.route('/')
-def show_entries():
-    """
-    Shows all entries from database
-    """
-    cur = g.db.execute(
-        'SELECT title, text FROM entries ORDER BY id DESC'
-    )
-    entries = [dict(title=row[0], text=row[1]) for row in cur.fetchall()]
-    return render_template('show_entries.html', entries=entries)
+class EntriesListView(ListView):
+    def get_template_name(self):
+        return 'show_entries.html'
+
+    def get_objects(self):
+        cur = g.db.execute(
+            'SELECT title, text FROM entries ORDER BY id DESC'
+        )
+        return [dict(title=row[0], text=row[1]) for row in cur.fetchall()]
 
 
 @app.route('/add', methods=['POST'])
@@ -83,6 +81,11 @@ def logout():
     flash("You were logged out")
     return redirect(url_for('show_entries'))
 
+
+app.add_url_rule(
+    '/',
+    view_func=EntriesListView.as_view('show_entries')
+)
 
 if __name__ == '__main__':
     init_db()
