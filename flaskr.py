@@ -4,14 +4,13 @@ import sqlite3
 from flask import Flask, request, session, g, redirect, url_for, \
     abort, render_template, flash
 
-from flask.ext.admin import Admin
-
-
+from flask.views import MethodView, View
 from views import ListView
+from flask.ext.admin import Admin
+from admin import MyView
 
 # create application
 app = Flask(__name__)
-admin = Admin(app)
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
 
@@ -75,17 +74,28 @@ def login():
     return  render_template('login.html', error=error)
 
 
-@app.route('/logout')
-def logout():
-    session.pop('logged_in', None)
-    flash("You were logged out")
-    return redirect(url_for('show_entries'))
+class LogoutView(MethodView):
+    def get(self):
+        session.pop('logged_in', None)
+        flash("You were logged out")
+        return redirect(url_for('show_entries'))
 
 
 app.add_url_rule(
     '/',
     view_func=EntriesListView.as_view('show_entries')
 )
+app.add_url_rule(
+    '/logout',
+    view_func=LogoutView.as_view('logout')
+)
+
+admin = Admin(app)
+
+admin.add_view(MyView(name="Hello"))
+admin.add_view(MyView(name='Hello 1', endpoint='test1', category='Test'))
+admin.add_view(MyView(name='Hello 2', endpoint='test2', category='Test'))
+admin.add_view(MyView(name='Hello 3', endpoint='test3', category='Test'))
 
 if __name__ == '__main__':
     init_db()

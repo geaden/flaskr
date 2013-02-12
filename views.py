@@ -10,9 +10,9 @@ from flask.views import View
 from flask import render_template
 
 
-class ListView(View):
+class BaseView(View):
     """
-    Base view for showing list of entries
+    Base view
     """
     def get_template_name(self):
         raise NotImplementedError()
@@ -20,7 +20,19 @@ class ListView(View):
     def render_template(self, context):
         return render_template(self.get_template_name(), **context)
 
+
+class ListView(BaseView):
+    """
+    Base view for showing list of entries
+    """
     def dispatch_request(self):
         context = {'objects': self.get_objects()}
         return self.render_template(context)
+
+
+class FormView(BaseView):
+    methods = ['GET', 'POST']
+
+
+
 
