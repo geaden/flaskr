@@ -1,0 +1,9 @@
+# Mac OS X stuff
+.DS_Store
+
+# PyCharm stuff
+.idea
+.project
+
+# Python stuff
+*.pyc
