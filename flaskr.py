@@ -77,10 +77,11 @@ def login():
     return  render_template('login.html', error=error)
 
 
-
-
-
-
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    flash("You were logged out")
+    return redirect(url_for('show_entries'))
 
 
 if __name__ == '__main__':
